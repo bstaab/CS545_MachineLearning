@@ -1,3 +1,4 @@
+
 import numpy as np
 import sys
 import copy
@@ -41,7 +42,6 @@ def sgd(w, error_f, error_gradient_f, fargs=[], n_iterations=100, eval_f=lambda 
             'reason': 'iterations',
             'time': time.time() - startTime}
 
-
 def adam(w, error_f, error_gradient_f, fargs=[], n_iterations=100, eval_f=lambda x: x,
          learning_rate=0.001, save_wtrace=False, verbose=False):
 
@@ -55,8 +55,8 @@ def adam(w, error_f, error_gradient_f, fargs=[], n_iterations=100, eval_f=lambda
     alpha = learning_rate
     epsilon = 10e-8
     nW = len(w)
-    g = np.zeros((nW, 1))
-    g2 = np.zeros((nW, 1))
+    g = np.zeros((nW))
+    g2 = np.zeros((nW))
     beta1t = beta1
     beta2t = beta2
 
@@ -238,7 +238,3 @@ def scg(w, error_f, error_gradient_f, fargs=[], n_iterations=100, eval_f=lambda 
             'ftrace': np.array(ftrace)[:iteration + 1],
             'reason': 'did not converge',
             'time': time.time() - startTime}
-
-
-
-
