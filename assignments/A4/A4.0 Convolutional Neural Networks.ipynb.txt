@@ -1,0 +1,172 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# A4.0 Convolutional Neural Networks\n",
+    "\n",
+    "*by Chuck Anderson for [CS545: Machine Learning](https://www.cs.colostate.edu/~anderson/cs545) at Colorado State University*\n",
+    "\n",
+    "In this assignment, you will create a new class, named `NeuralNetwork_Convolutional` that uses the `torch.nn` module to construct neural networks with initial convolutional layers followed by fully connected layers to learn to classify images."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class NeuralNetwork_Convolutional():\n",
+    "    \n",
+    "    def __init__(self, n_channels_in_image, image_size, n_units_in_conv_layers, \n",
+    "                 n_units_in_fc_hidden_layers, classes,\n",
+    "                 conv_kernels, use_gpu=False):\n",
+    "        '''\n",
+    "        n_channels_in_image: (int) number of values per pixel\n",
+    "        image_size: (int) number of rows in image, same as number of columns\n",
+    "        n_units_in_conv_layers: (list of ints) number of units in each convolutional layer\n",
+    "        n_units_in_fc_hidden_layers: (list of ints) number of units in fully-connected layers\n",
+    "        classes: (list of ints) labels for each class\n",
+    "        conv_kernels: (list of lists) each list is [kernel_size, kernel_stride] for each convolutional layer\n",
+    "        '''\n",
+    "        .\n",
+    "        .\n",
+    "        .\n",
+    "\n",
+    "    def __repr__(self):\n",
+    "        .\n",
+    "        .\n",
+    "        .\n",
+    "        \n",
+    "    def train(self, X, T, n_epochs, learning_rate):\n",
+    "        '''\n",
+    "        X: (4-dimensional numpy array) n_samples x n_channels x n_rows x n_columns\n",
+    "        T: (1-dimensional numpy array of ints) n_samples  with values from `classes` given in constructor\n",
+    "        n_epochs: (int) number of updates to make\n",
+    "        learning_rate: (float) learning rate to be used for the Adam optimizer\n",
+    "        '''\n",
+    "        .\n",
+    "        .\n",
+    "        .\n",
+    "        \n",
+    "    def use(self, X):\n",
+    "        .\n",
+    "        .\n",
+    "        ."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Investigate the application of your code to the classification of MNIST digits, which you may download from [this site](http://deeplearning.net/tutorial/gettingstarted.html)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "import pickle, gzip\n",
+    "\n",
+    "# Load the dataset\n",
+    "with gzip.open('mnist.pkl.gz', 'rb') as f:\n",
+    "    train_set, valid_set, test_set = pickle.load(f, encoding='latin1')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "((50000, 784), (50000,))"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "Xtrain = train_set[0]\n",
+    "Ttrain = train_set[1]\n",
+    "Xtrain.shape, Ttrain.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(28, 28)"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "a = Xtrain[0, :].reshape(28, 28)\n",
+    "a.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 432x288 with 4 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "for i in range(4):\n",
+    "    plt.subplot(2, 2, i + 1)\n",
+    "    plt.imshow(Xtrain[i, :].reshape(28, 28), cmap='binary')\n",
+    "    plt.title(Ttrain[i])\n",
+    "    plt.axis('off');"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
