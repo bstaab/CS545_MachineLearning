@@ -39,6 +39,7 @@ def draw(Vs, W, inputNames=None, outputNames=None, gray=False):
         else:
             xlim += round(max(map(len,outputNames))/4.0)
 
+    plt.figure(figsize=(20, 20))
     ax = plt.gca()
 
     character_width_factor = 0.07
